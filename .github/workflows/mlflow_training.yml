@@ -1,0 +1,62 @@
+name: Daily Model Training
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs at midnight UTC daily
+  workflow_dispatch:      # Allow manual triggers
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout code
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Set up Python
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    # 3. Install dependencies
+    - name: Install packages
+      run: |
+        pip install -r requirements.txt
+        pip install mlflow scikit-learn pandas joblib
+
+    # 4. Start MLflow server
+    - name: Launch MLflow
+      run: |
+        mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlruns.db &
+        sleep 5  # Wait for server to start
+
+    # 5. Train model
+    - name: Run training script
+      run: python train_model.py
+
+    # 6. Commit the new model
+    - name: Update model in repo
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add best_model.pkl
+        git commit -m "[Automated] Update best_model.pkl"
+        git push
+
+    # 7. Send email notification
+    - name: Notify via Email
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "Model Training Results (${{ github.run_id }})"
+        body: |
+          Training completed!
+          - Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - MLflow UI: http://localhost:5000
+        to: your-email@example.com
+        from: "MLflow Bot <mlflow@example.com>"
