@@ -1,0 +1,21 @@
+name: Test Email Notification
+
+on: [workflow_dispatch]  # Manual trigger only
+
+jobs:
+  test-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send test email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "TEST: GitHub Actions Email Check"
+          body: |
+            This is a **test email** from GitHub Actions.
+            ⚡ If you see this, your setup works!
+          to: asmacherifaa@gmail.com  # Change to your email
+          from: "Test Bot <asmacherifaa@gmail.com>"
