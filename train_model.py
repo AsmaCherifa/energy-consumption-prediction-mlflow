@@ -20,8 +20,8 @@ try:
     print("✅ Data loaded successfully")
     print("Columns:", data.columns.tolist())
     
-    if "target" not in data.columns:
-        raise ValueError("Column 'target' not found in data")
+    if "Energy Consumed" not in data.columns:
+        raise ValueError("Column 'Energy Consumed' not found in data")
         
     X = data.drop("Energy Consumed", axis=1)
     y = data["Energy Consumed"]
