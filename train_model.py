@@ -6,13 +6,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 import os
 
-# 1. Verify MLflow server is running
-try:
-    mlflow.set_tracking_uri("http://localhost:5000")
-    print("✅ Connected to MLflow server")
-except Exception as e:
-    print(f"❌ MLflow connection failed: {e}")
-    raise
+
 
 # 2. Load and validate data
 try:
