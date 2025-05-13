@@ -48,10 +48,7 @@ try:
     mlflow.end_run()  
 except:
     pass
-mlflow.set_tracking_uri('http://localhost:5000')
 model_registry_name = "energy_consumption_model"
-
-# Your original models dictionary
 models = {
     'Linear Regression': LinearRegression(),
     'Decision Tree': DecisionTreeRegressor(),
