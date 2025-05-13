@@ -43,6 +43,16 @@ X_scaled = scaler.fit_transform(X)
     # Split the data into training and testing sets (80% training, 20% testing)
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
+# Set local tracking URI (can be any path, even "./mlruns")
+tracking_dir = os.path.abspath("C:/wamp64/www/smart-energy/dist/chat/saved_models/mlruns")
+mlflow.set_tracking_uri(f"file:///{tracking_dir}")
+print("Tracking URI:", mlflow.get_tracking_uri())
+
+
+# Optional: create experiment (you can skip this, and MLflow will use "Default")
+experiment_name = "EnergyConsumptionExperiment"
+mlflow.set_experiment(experiment_name)
+
 
 try:
     mlflow.end_run()  
@@ -67,6 +77,8 @@ best_run_id = None
 def log_model_run(name, model):
     """Encapsulated model training and logging logic"""
     with mlflow.start_run(run_name=name, nested=True) as run:
+        mlflow.log_param("param1", 5)
+        mlflow.log_metric("accuracy", 0.91)
         # Training
         start = time.time()
         model.fit(X_train, y_train)
