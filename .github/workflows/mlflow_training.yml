@@ -78,13 +78,16 @@ jobs:
         fi
 
     - name: Send email notification
+      if: always()
       uses: dawidd6/action-send-mail@v3
       with:
         server_address: smtp.gmail.com
-        server_port: 587  # Alternative port
+        server_port: 587
         username: ${{ secrets.EMAIL_USERNAME }}
         password: ${{ secrets.EMAIL_PASSWORD }}
-        to: ${{ secrets.EMAIL_USERNAME }}  # Send to yourself
-        from: ${{ secrets.EMAIL_USERNAME }}  # sss
-        subject: "Workflow completed"
-        body: "See run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        subject: "Energy Model Training - ${{ job.status }} (Run ${{ github.run_number }})"
+        body: |
+          Training completed with status: ${{ job.status }}
+          View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        to: ${{ secrets.EMAIL_RECIPIENT }}
+        from: ${{ secrets.EMAIL_USERNAME }}  # Required field
