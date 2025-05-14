@@ -27,7 +27,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install mlflow==2.8.1 scikit-learn pandas joblib  # Pinned MLflow version
+        pip install mlflow==2.8.1 scikit-learn pandas joblib
 
     - name: Create MLflow directory
       run: mkdir -p mlruns
@@ -48,8 +48,14 @@ jobs:
           echo "Removed previous best_model.pkl"
         fi
         
-        # Execute training with error handling
-        python -c "
+        # Execute training
+        python train_model.py
+        
+        # Verify model creation
+        if [ ! -f "best_model.pkl" ]; then
+          echo "ERROR: best_model.pkl not generated"
+          exit 1
+        fi
 
     - name: Push model to GitHub
       run: |
@@ -71,8 +77,9 @@ jobs:
         html_body: |
           <h2>Training Results</h2>
           <p><strong>Status</strong>: ${{ job.status }}</p>
-          <p><strong>Best Model</strong>: Random Forest (MSE: 8.24)</p>
+          <p><strong>Run ID</strong>: ${{ github.run_id }}</p>
+          <p><strong>Commit</strong>: ${{ github.sha }}</p>
           <p><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">View Details</a></p>
-        to: ${{ secrets.EMAIL_USERNAME }}
+        to: ${{ secrets.EMAIL_RECIPIENT }}  # Different from username
         from: "MLflow Bot <${{ secrets.EMAIL_USERNAME }}>"
         secure: true
