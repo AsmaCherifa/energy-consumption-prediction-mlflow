@@ -2,8 +2,8 @@ name: Daily Model Retraining
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # At midnight UTC every day
-  workflow_dispatch:     # Allow manual trigger as well
+    - cron: '0 0 * * *'  # Every day at midnight UTC
+  workflow_dispatch:     # Manual trigger
 
 jobs:
   run-model:
@@ -26,13 +26,11 @@ jobs:
       - name: Run model script
         run: python train_model.py
 
-      - name: Commit best_model.pkl if it exists
+      - name: Commit and push updated model
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          if [ -f best_model.pkl ]; then
-            git add best_model.pkl
-            git commit -m "🔁 Daily retrained model"
-            git push
-          else
-            echo "⚠️ No best_model.pkl found — skipping commit."
+          git add best_model.pkl
+          git commit -m "[Automated] Update best_model.pkl" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/AsmaCherifa/energy-consumption-prediction-mlflow.git HEAD:main
+ 
