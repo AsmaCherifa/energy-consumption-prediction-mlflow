@@ -1,6 +1,7 @@
-name: Test Email Notification
+name: Email Notification Test
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   test-email:
@@ -13,10 +14,12 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "TEST: GitHub Actions Email Check"
+          subject: "TEST: Email Notification System"
           body: |
-            This is a **test email** from GitHub Actions.
-            ⚡ If you see this, your setup works!
-          to: asmacherifaa@gmail.com
-          from: "Test Bot <asmacherifaa@gmail.com>"
-          secure: true
+            This is a test email from GitHub Actions.
+            
+            If you received this, your email configuration works!
+            
+            Sent at: ${{ github.run_attempt }}
+          to: ${{ secrets.EMAIL_RECIPIENT }}
+          from: ${{ secrets.EMAIL_USERNAME }}  # Required field
