@@ -66,20 +66,13 @@ jobs:
         git push
 
     - name: Send email notification
-      if: always()
       uses: dawidd6/action-send-mail@v3
       with:
         server_address: smtp.gmail.com
-        server_port: 465
+        server_port: 587  # Alternative port
         username: ${{ secrets.EMAIL_USERNAME }}
         password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "Energy Model Training - ${{ job.status }} (Run ${{ github.run_number }})"
-        html_body: |
-          <h2>Training Results</h2>
-          <p><strong>Status</strong>: ${{ job.status }}</p>
-          <p><strong>Run ID</strong>: ${{ github.run_id }}</p>
-          <p><strong>Commit</strong>: ${{ github.sha }}</p>
-          <p><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">View Details</a></p>
-        to: ${{ secrets.EMAIL_RECIPIENT }}  # Different from username
-        from: "MLflow Bot <${{ secrets.EMAIL_USERNAME }}>"
-        secure: true
+        to: ${{ secrets.EMAIL_USERNAME }}  # Send to yourself
+        from: ${{ secrets.EMAIL_USERNAME }}  # Simple from address
+        subject: "Workflow completed"
+        body: "See run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
