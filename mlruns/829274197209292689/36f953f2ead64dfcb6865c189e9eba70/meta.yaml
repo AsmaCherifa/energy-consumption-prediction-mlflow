@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/36f953f2ead64dfcb6865c189e9eba70/artifacts
+end_time: 1747209899520
+entry_point_name: ''
+experiment_id: '829274197209292689'
+lifecycle_stage: active
+run_id: 36f953f2ead64dfcb6865c189e9eba70
+run_name: SVR
+run_uuid: 36f953f2ead64dfcb6865c189e9eba70
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747209889312
+status: 3
+tags: []
+user_id: DELL

@@ -25,3 +25,14 @@ jobs:
 
       - name: Run model script
         run: python train_model.py
+
+      - name: Commit best_model.pkl if it exists
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          if [ -f best_model.pkl ]; then
+            git add best_model.pkl
+            git commit -m "🔁 Daily retrained model"
+            git push
+          else
+            echo "⚠️ No best_model.pkl found — skipping commit."

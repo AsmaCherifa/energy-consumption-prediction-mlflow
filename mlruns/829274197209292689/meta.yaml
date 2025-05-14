@@ -1,0 +1,6 @@
+artifact_location: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689
+creation_time: 1747209592870
+experiment_id: '829274197209292689'
+last_update_time: 1747209592870
+lifecycle_stage: active
+name: EnergyConsumptionExperiment

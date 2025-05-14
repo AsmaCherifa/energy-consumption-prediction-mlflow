@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/403e2935dba14f97bafa82b8490f8bfc/artifacts
+end_time: 1747209899531
+entry_point_name: ''
+experiment_id: '829274197209292689'
+lifecycle_stage: active
+run_id: 403e2935dba14f97bafa82b8490f8bfc
+run_name: Model Comparison
+run_uuid: 403e2935dba14f97bafa82b8490f8bfc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747209853649
+status: 3
+tags: []
+user_id: DELL

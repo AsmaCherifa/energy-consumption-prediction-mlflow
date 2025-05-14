@@ -173,6 +173,9 @@ if best_run_id:
     print("\nModel Comparison:\n", comparison_df)
 
 # Save final artifacts (original functionality)
-joblib.dump(best_model, 'model.pkl')
+#joblib.dump(best_model, 'model.pkl')
+# Save the best model locally
+joblib.dump(best_model, "best_model.pkl")
+print("✅ best_model.pkl has been saved.")
 joblib.dump(scaler, 'scaler.pkl')
 joblib.dump(label_encoder, 'encoder.pkl')

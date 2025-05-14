@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/94e3bb6ccc694b7daf46ff0bc0b23a3b/artifacts
+end_time: 1747209860867
+entry_point_name: ''
+experiment_id: '829274197209292689'
+lifecycle_stage: active
+run_id: 94e3bb6ccc694b7daf46ff0bc0b23a3b
+run_name: Linear Regression
+run_uuid: 94e3bb6ccc694b7daf46ff0bc0b23a3b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747209853721
+status: 3
+tags: []
+user_id: DELL

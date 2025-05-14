@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/581b80463a8040fbb1dcfe2c443905df/artifacts
+end_time: 1747209883782
+entry_point_name: ''
+experiment_id: '829274197209292689'
+lifecycle_stage: active
+run_id: 581b80463a8040fbb1dcfe2c443905df
+run_name: Gradient Boosting
+run_uuid: 581b80463a8040fbb1dcfe2c443905df
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747209876756
+status: 3
+tags: []
+user_id: DELL

@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1747209645752
+current_stage: Archived
+description: null
+last_updated_timestamp: 1747209900035
+name: energy_consumption_model
+run_id: 526c0b6cea8c4c0cbf719bfb4b7079fd
+run_link: null
+source: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/526c0b6cea8c4c0cbf719bfb4b7079fd/artifacts/random_forest
+status: READY
+status_message: null
+storage_location: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/526c0b6cea8c4c0cbf719bfb4b7079fd/artifacts/random_forest
+user_id: null
+version: 1

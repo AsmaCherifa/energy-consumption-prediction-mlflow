@@ -1,6 +1,6 @@
 name: Test Email Notification
 
-on: [workflow_dispatch]  # Manual trigger only
+on: [workflow_dispatch]
 
 jobs:
   test-email:
@@ -17,5 +17,6 @@ jobs:
           body: |
             This is a **test email** from GitHub Actions.
             ⚡ If you see this, your setup works!
-          to: asmacherifaa@gmail.com  # Change to your email
+          to: asmacherifaa@gmail.com
           from: "Test Bot <asmacherifaa@gmail.com>"
+          secure: true

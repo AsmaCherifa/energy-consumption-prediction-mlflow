@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/8954f9cd98b948289dddcdd78b81ec04/artifacts
+end_time: 1747209635860
+entry_point_name: ''
+experiment_id: '829274197209292689'
+lifecycle_stage: active
+run_id: 8954f9cd98b948289dddcdd78b81ec04
+run_name: KNN
+run_uuid: 8954f9cd98b948289dddcdd78b81ec04
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747209630324
+status: 3
+tags: []
+user_id: DELL

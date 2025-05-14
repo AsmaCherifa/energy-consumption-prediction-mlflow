@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/df516938f3364fa8ad8f638d8b5204e6/artifacts
+end_time: 1747209900433
+entry_point_name: ''
+experiment_id: '829274197209292689'
+lifecycle_stage: active
+run_id: df516938f3364fa8ad8f638d8b5204e6
+run_name: illustrious-loon-909
+run_uuid: df516938f3364fa8ad8f638d8b5204e6
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747209900194
+status: 3
+tags: []
+user_id: DELL

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/53781a17f0fe4b129c32ef9f7c2d044d/artifacts
+end_time: 1747210194952
+entry_point_name: ''
+experiment_id: '829274197209292689'
+lifecycle_stage: active
+run_id: 53781a17f0fe4b129c32ef9f7c2d044d
+run_name: Random Forest
+run_uuid: 53781a17f0fe4b129c32ef9f7c2d044d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747210184998
+status: 3
+tags: []
+user_id: DELL

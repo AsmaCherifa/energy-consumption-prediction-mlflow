@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\wamp64\www\smart-energy\dist\chat\saved_models\mlruns/829274197209292689/331bf6573c994ece959caabe9e3c29d6/artifacts
+end_time: 1747210184986
+entry_point_name: ''
+experiment_id: '829274197209292689'
+lifecycle_stage: active
+run_id: 331bf6573c994ece959caabe9e3c29d6
+run_name: Decision Tree
+run_uuid: 331bf6573c994ece959caabe9e3c29d6
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747210179504
+status: 3
+tags: []
+user_id: DELL
