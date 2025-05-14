@@ -1,4 +1,4 @@
-name: Daily Model Retraining
+name: Daily Model testing
 
 on:
   schedule:
