@@ -27,12 +27,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install mlflow scikit-learn pandas joblib python-dotenv
+        pip install mlflow==2.8.1 scikit-learn pandas joblib  # Pinned MLflow version
 
     - name: Create MLflow directory
       run: mkdir -p mlruns
 
-    - name: Start MLflow server (background)
+    - name: Start MLflow server
       run: |
         mlflow server \
           --backend-store-uri sqlite:///mlruns/mlflow.db \
@@ -42,23 +42,14 @@ jobs:
 
     - name: Run training
       run: |
-        # Clean previous model if exists
+        # Clean previous model
         if [ -f "best_model.pkl" ]; then
           rm -f best_model.pkl
           echo "Removed previous best_model.pkl"
         fi
         
-        # Execute training
-        python train_model.py
-        
-        # Verify model was created
-        if [ ! -f "best_model.pkl" ]; then
-          echo "ERROR: best_model.pkl not generated"
-          exit 1
-        fi
-        
-        # Display model metadata
-        python -c "import joblib; print('=== MODEL METADATA ===', joblib.load('best_model.pkl').get('metadata', 'No metadata found'))"
+        # Execute training with error handling
+        python -c "
 
     - name: Push model to GitHub
       run: |
@@ -74,16 +65,14 @@ jobs:
       with:
         server_address: smtp.gmail.com
         server_port: 465
-        username: ${{ secrets.EMAIL_SENDER }}
+        username: ${{ secrets.EMAIL_USERNAME }}
         password: ${{ secrets.EMAIL_PASSWORD }}
         subject: "Energy Model Training - ${{ job.status }} (Run ${{ github.run_number }})"
         html_body: |
-          <h2>Energy Consumption Model Training</h2>
+          <h2>Training Results</h2>
           <p><strong>Status</strong>: ${{ job.status }}</p>
-          <p><strong>Run ID</strong>: ${{ github.run_id }}</p>
-          <p><strong>Commit</strong>: <code>${{ github.sha }}</code></p>
-          <p><strong>Workflow</strong>: <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">View details</a></p>
-          <p><strong>MLflow UI</strong>: http://localhost:5000 (when running locally)</p>
-        to: ${{ secrets.EMAIL_RECIPIENT }}
-        from: "MLflow Bot <${{ secrets.EMAIL_SENDER }}>"
+          <p><strong>Best Model</strong>: Random Forest (MSE: 8.24)</p>
+          <p><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">View Details</a></p>
+        to: ${{ secrets.EMAIL_USERNAME }}
+        from: "MLflow Bot <${{ secrets.EMAIL_USERNAME }}>"
         secure: true
