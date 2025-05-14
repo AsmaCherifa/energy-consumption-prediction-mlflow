@@ -1,63 +1,89 @@
-name: Daily Model Training
+name: Energy Consumption Model Training
 
 on:
   schedule:
     - cron: '0 0 * * *'  # Runs at midnight UTC daily
   workflow_dispatch:      # Allow manual triggers
 
+permissions:
+  contents: write
+
 jobs:
-  train:
+  train-model:
     runs-on: ubuntu-latest
+    env:
+      MLFLOW_TRACKING_URI: http://127.0.0.1:5000
+      MODEL_VERSION: ${{ github.run_id }}
 
     steps:
-    # 1. Checkout code
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    # 2. Set up Python
-    - name: Set up Python 3.9
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
-
-    # 3. Install dependencies
-    - name: Install packages
+    
+    - name: Install dependencies
       run: |
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install mlflow scikit-learn pandas joblib
+        pip install mlflow scikit-learn pandas joblib python-dotenv
 
-    # 4. Start MLflow server
-    - name: Launch MLflow
+    - name: Create MLflow directory
+      run: mkdir -p mlruns
+
+    - name: Start MLflow server (background)
       run: |
-        mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlruns.db &
-        sleep 5  # Wait for server to start
+        mlflow server \
+          --backend-store-uri sqlite:///mlruns/mlflow.db \
+          --default-artifact-root ./mlruns \
+          --host 0.0.0.0 &
+        sleep 5
 
-    # 5. Train model
-    - name: Run training script
-      run: python train_model.py
-
-    # 6. Commit the new model
-    - name: Update model in repo
+    - name: Run training
       run: |
+        # Clean previous model if exists
+        if [ -f "best_model.pkl" ]; then
+          rm -f best_model.pkl
+          echo "Removed previous best_model.pkl"
+        fi
+        
+        # Execute training
+        python train_model.py
+        
+        # Verify model was created
+        if [ ! -f "best_model.pkl" ]; then
+          echo "ERROR: best_model.pkl not generated"
+          exit 1
+        fi
+        
+        # Display model metadata
+        python -c "import joblib; print('=== MODEL METADATA ===', joblib.load('best_model.pkl').get('metadata', 'No metadata found'))"
 
+    - name: Push model to GitHub
+      run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        git add best_model.pkl || echo "No changes to commit"
-        git commit -m "[Automated] Update best_model.pkl" || echo "Nothing to commit"
-        git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }} HEAD:main
+        git add best_model.pkl
+        git commit -m "[Automated] Update model ${{ github.run_id }}"
+        git push
 
-    # 7. Send email notification
-    - name: Notify via Email
+    - name: Send email notification
+      if: always()
       uses: dawidd6/action-send-mail@v3
       with:
         server_address: smtp.gmail.com
-        server_port: 587
-        username: ${{ secrets.EMAIL_USERNAME }}
+        server_port: 465
+        username: ${{ secrets.EMAIL_SENDER }}
         password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "Model Training Results (${{ github.run_id }})"
-        body: |
-          Training completed!
-          - Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          - MLflow UI: http://localhost:5000
-        to: your-email@example.com
-        from: "MLflow Bot <mlflow@example.com>"
+        subject: "Energy Model Training - ${{ job.status }} (Run ${{ github.run_number }})"
+        html_body: |
+          <h2>Energy Consumption Model Training</h2>
+          <p><strong>Status</strong>: ${{ job.status }}</p>
+          <p><strong>Run ID</strong>: ${{ github.run_id }}</p>
+          <p><strong>Commit</strong>: <code>${{ github.sha }}</code></p>
+          <p><strong>Workflow</strong>: <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">View details</a></p>
+          <p><strong>MLflow UI</strong>: http://localhost:5000 (when running locally)</p>
+        to: ${{ secrets.EMAIL_RECIPIENT }}
+        from: "MLflow Bot <${{ secrets.EMAIL_SENDER }}>"
+        secure: true
