@@ -89,5 +89,5 @@ jobs:
         body: |
           Training completed with status: ${{ job.status }}
           View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        to: ${{ secrets.EMAIL_RECIPIENT }}
-        from: ${{ secrets.EMAIL_RECIPIENT }}
+        to: ${{ secrets.EMAIL_USERNAME }}
+        from: GitHub Actions
