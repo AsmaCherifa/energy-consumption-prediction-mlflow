@@ -57,28 +57,7 @@ jobs:
           exit 1
         fi
 
-    - name: Get R2 score (accuracy) from CSV
-      id: metrics
-      run: |
-        # Get header and first line of values
-        HEADER=$(head -n1 comparison.csv)
-        VALUES=$(sed -n 2p comparison.csv)
-
-        # Convert them to arrays
-        IFS=',' read -ra METRICS <<< "$HEADER"
-        IFS=',' read -ra RESULTS <<< "$VALUES"
-
-        # Find the index of R2
-        for i in "${!METRICS[@]}"; do
-          if [[ "${METRICS[$i]}" == "R2" ]]; then
-            R2_INDEX=$i
-            break
-          fi
-        done
-
-        # Extract the R2 value
-        ACCURACY=${RESULTS[$R2_INDEX]}
-        echo "accuracy=$ACCURACY" >> $GITHUB_OUTPUT
+   
 
     - name: Push model artifacts
       run: |
@@ -109,12 +88,6 @@ jobs:
         body: |
           ✅ Model training completed successfully!
           
-          Model version: ${{ env.MODEL_VERSION }}
-          Accuracy (R²): ${{ steps.metrics.outputs.accuracy }}
-
-          📁 Artifacts generated:
-          - best_model.pkl
-          - comparison.csv
 
           View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         to: ${{ secrets.EMAIL_USERNAME }}
