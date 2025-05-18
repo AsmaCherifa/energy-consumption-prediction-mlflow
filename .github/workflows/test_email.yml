@@ -1,7 +1,7 @@
 name: Email Notification Test
 
 on:
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   test-email:
@@ -22,4 +22,4 @@ jobs:
             
             Sent at: ${{ github.run_attempt }}
           to: ${{ secrets.EMAIL_RECIPIENT }}
-          from: ${{ secrets.EMAIL_USERNAME }}  # Required field
+          from: ${{ secrets.EMAIL_USERNAME }}
