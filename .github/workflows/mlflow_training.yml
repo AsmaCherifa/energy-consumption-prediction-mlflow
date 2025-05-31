@@ -14,6 +14,7 @@ jobs:
     env:
       MLFLOW_TRACKING_URI: http://35.225.15.234:5000
       MODEL_VERSION: ${{ github.run_id }}
+      RUN_NAME: "Energy_Consumption_Model_Training_Run_${{ github.run_id }}"  # Custom run name
 
     steps:
     - uses: actions/checkout@v4
@@ -37,7 +38,7 @@ jobs:
         mlflow server \
           --backend-store-uri sqlite:///mlruns/mlflow.db \
           --default-artifact-root ./mlruns \
-          --host 0.0.0.0 &
+          --host 0.0.0.0 & 
         sleep 5
 
     - name: Run training
@@ -48,16 +49,14 @@ jobs:
           echo "Removed previous best_model.pkl"
         fi
 
-        # Execute training
-        python train_model.py
+        # Execute training and pass the custom run name to the script
+        python train_model.py --run-name "${{ env.RUN_NAME }}"  # Pass run name
 
         # Verify model creation
         if [ ! -f "best_model.pkl" ]; then
           echo "ERROR: best_model.pkl not generated"
           exit 1
         fi
-
-   
 
     - name: Push model artifacts
       run: |
