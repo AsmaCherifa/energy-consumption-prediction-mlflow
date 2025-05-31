@@ -40,6 +40,8 @@ jobs:
           --default-artifact-root ./mlruns \
           --host 0.0.0.0 & 
         sleep 5
+    - name: Create GCP credentials file from secret
+      run: echo '${{ secrets.GCP_CREDENTIALS }}' > mlflow-prediction.json
 
     - name: Run training
       run: |
