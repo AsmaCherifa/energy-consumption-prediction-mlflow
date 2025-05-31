@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+import matplotlib.pyplot as plt
 import joblib  
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
@@ -11,12 +12,17 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import time
+import seaborn as sns
 from sklearn.metrics import mean_absolute_percentage_error, explained_variance_score, max_error, confusion_matrix, classification_report
 import mlflow
 from mlflow.tracking import MlflowClient
 import time
 import os
 from datetime import datetime
+
+import os
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "mlflow-prediction.json"
+
 
 # STEP 1 : Load the dataset
 data = pd.read_csv('energy_dataset.csv')
@@ -43,29 +49,27 @@ X_scaled = scaler.fit_transform(X)
     # Split the data into training and testing sets (80% training, 20% testing)
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-# Set local tracking URI (can be any path, even "./mlruns")
-tracking_dir = os.path.abspath("C:/wamp64/www/smart-energy/dist/chat/saved_models/mlruns")
-mlflow.set_tracking_uri(f"file:///{tracking_dir}")
-print("Tracking URI:", mlflow.get_tracking_uri())
 
+# STEP 4: Model Training
+    # Initialize and train the Random Forest model
+#model = RandomForestRegressor(n_estimators=100, random_state=42)
+#model.fit(X_train, y_train)
 
-# Optional: create experiment (you can skip this, and MLflow will use "Default")
-experiment_name = "EnergyConsumptionExperiment"
-mlflow.set_experiment(experiment_name)
-
-
+# Initialize MLflow (with error handling)
 try:
-    mlflow.end_run()  
+    mlflow.end_run()  # Ensure no active runs
 except:
     pass
+
+mlflow.set_tracking_uri('http://35.225.15.234:5000')
 model_registry_name = "energy_consumption_model"
+
+# Your original models dictionary
 models = {
     'Linear Regression': LinearRegression(),
-    'Decision Tree': DecisionTreeRegressor(),
     'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42),
-    'Gradient Boosting': GradientBoostingRegressor(),
-    'KNN': KNeighborsRegressor(),
-    'SVR': SVR()
+    'Gradient Boosting': GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=8, subsample=1.0),
+    'SVR': SVR(kernel='rbf', C=1.0, epsilon=0.1, gamma='scale')
 }
 
 results = []
@@ -76,9 +80,7 @@ best_run_id = None
 
 def log_model_run(name, model):
     """Encapsulated model training and logging logic"""
-    with mlflow.start_run(run_name=name, nested=True) as run:
-        mlflow.log_param("param1", 5)
-        mlflow.log_metric("accuracy", 0.91)
+    with mlflow.start_run(run_name=name) as run:  # No 'nested=True', so each model gets a separate run
         # Training
         start = time.time()
         model.fit(X_train, y_train)
@@ -88,8 +90,7 @@ def log_model_run(name, model):
         start = time.time()
         y_pred = model.predict(X_test)
         pred_time = time.time() - start
-        
-        # Metrics
+         # Metrics
         metrics = {
             'MSE': mean_squared_error(y_test, y_pred),
             'MAE': mean_absolute_error(y_test, y_pred),
@@ -107,25 +108,27 @@ def log_model_run(name, model):
         mlflow.sklearn.log_model(model, name.lower().replace(" ", "_"))
         
         return metrics, run.info.run_id
-    
-# Main execution
-with mlflow.start_run(run_name="Model Comparison") as parent_run:
-    for name, model in models.items():
-        try:
-            metrics, run_id = log_model_run(name, model)
-            results.append({'Model': name, **metrics})
+    # Main execution
+for name, model in models.items():
+    try:
+        # Start a new MLflow run for each model
+        metrics, run_id = log_model_run(name, model)
+        mse = metrics['MSE']  # Get MSE from the model's metrics
+        results.append({
+            "Model": name,
+            "MSE": mse,
+            "Run ID": run_id
+        })
+        if mse < best_mse:
+            best_mse = mse
+            best_model = model
+            best_model_name = name
+            best_run_id = run_id
+            print(f"New best: {name} (MSE: {best_mse:.4f})")
             
-            if metrics['MSE'] < best_mse:
-                best_mse = metrics['MSE']
-                best_model = model
-                best_model_name = name
-                best_run_id = run_id
-                print(f"New best: {name} (MSE: {best_mse:.4f})")
-                
-        except Exception as e:
-            print(f"Error with {name}: {str(e)}")
-            mlflow.end_run()  # Ensure failed run is closed
-
+    except Exception as e:
+        print(f"Error with {name}: {str(e)}")
+        mlflow.end_run()  # Ensure failed run is closed
 
 client = MlflowClient()
 model_backup_dir = "backup_models"
@@ -134,7 +137,11 @@ os.makedirs(model_backup_dir, exist_ok=True)
 # Backup current production model
 try:
     # Get the current production model version
-    versions = client.get_latest_versions(model_registry_name, stages=["Production"])
+    try:
+        versions = client.get_latest_versions(model_registry_name, stages=["Production"])
+    except RestException:
+        print(f"Model {model_registry_name} not found. Skipping backup.")
+        versions = []
     if versions:
         prod_version = versions[0]
         prod_model_uri = f"models:/{model_registry_name}/{prod_version.version}"
@@ -151,31 +158,27 @@ except Exception as e:
     print(f"❌ Failed to backup current Production model: {e}")
 
     # Register and promote best model
-if best_run_id:
-    try:
-        model_uri = f"runs:/{best_run_id}/{best_model_name.lower().replace(' ', '_')}"
-        mv = mlflow.register_model(model_uri, model_registry_name)
-        
-        client.transition_model_version_stage(
-            name=model_registry_name,
-            version=mv.version,
-            stage="Production",
-            archive_existing_versions=True
-        )
-        print(f"\n🚀 Promoted {best_model_name} v{mv.version} to Production")
-    except Exception as e:
-        print(f"\n❌ Model promotion failed: {e}")
+    if best_run_id:
+        try:
+            model_uri = f"runs:/{best_run_id}/{best_model_name.lower().replace(' ', '_')}"
+            mv = mlflow.register_model(model_uri, model_registry_name)
+            
+            client = MlflowClient()
+            client.transition_model_version_stage(
+                name=model_registry_name,
+                version=mv.version,
+                stage="Production",
+                archive_existing_versions=True
+            )
+            print(f"\n🚀 Promoted {best_model_name} v{mv.version} to Production")
+        except Exception as e:
+            print(f"\n❌ Model promotion failed: {e}")
 
     # Save comparison
     comparison_df = pd.DataFrame(results).sort_values('MSE')
     comparison_df.to_csv("comparison.csv", index=False)
     mlflow.log_artifact("comparison.csv")
     print("\nModel Comparison:\n", comparison_df)
-
-# Save final artifacts (original functionality)
-#joblib.dump(best_model, 'model.pkl')
-# Save the best model locally
-joblib.dump(best_model, "best_model.pkl")
-print("✅ best_model.pkl has been saved.")
+joblib.dump(best_model, 'model.pkl')
 joblib.dump(scaler, 'scaler.pkl')
 joblib.dump(label_encoder, 'encoder.pkl')
