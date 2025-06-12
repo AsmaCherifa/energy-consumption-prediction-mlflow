@@ -62,10 +62,10 @@ except:
 model_registry_name = "energy_consumption_model"
 models = {
     'Linear Regression': LinearRegression(),
-    'Decision Tree': DecisionTreeRegressor(),
+    
     'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42),
     'Gradient Boosting': GradientBoostingRegressor(),
-    'KNN': KNeighborsRegressor(),
+   
     'SVR': SVR()
 }
 
