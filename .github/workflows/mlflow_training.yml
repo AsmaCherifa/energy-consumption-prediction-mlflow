@@ -2,7 +2,7 @@ name: Energy Consumption Model Training
 
 on:
   schedule:
-    - cron: '0 0 1 1 */50'  # Runs on January 1st, at midnight every 50 years
+    - cron:  # Runs on January 1st, at midnight every 50 years
   workflow_dispatch:      # Allow manual triggers
 
 permissions:
